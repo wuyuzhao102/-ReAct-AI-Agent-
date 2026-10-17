@@ -1,0 +1,75 @@
+# 🐍 agent · Python 智能体模块（ReAct Agent）
+
+> **负责人**：成员 3 ｜ **工作分支**：`feature/agent` ｜ **状态**：⏳ 待开发
+> 🔥 **这是本项目的核心亮点模块**，也是答辩时最容易被追问的部分。
+
+## 技术栈
+
+| 项 | 选型 |
+| :--- | :--- |
+| Web 框架 | FastAPI + Uvicorn |
+| Agent 框架 | LangChain（ReAct Agent） |
+| 文档解析 | PyPDF（PDF）、python-docx（Word） |
+| 大模型 | DeepSeek / 通义千问（OpenAI 兼容接口） |
+| 文本检索 | 先用简单关键词 / TF-IDF，后期可升级向量检索 |
+| 配置 | `.env` + python-dotenv |
+
+## 核心：ReAct 循环
+
+```text
+用户问题
+   ↓
+┌──────────────────────────────────────────────┐
+│ Thought：我现在还缺什么信息？下一步调用哪个工具？ │
+│    ↓                                          │
+│ Action：调用工具（最多 8 轮）                   │
+│    ↓                                          │
+│ Observation：拿到真实结果（课件原文/题目/计划）   │
+└──────────────────────────────────────────────┘
+   ↓ 任务完成
+输出 Markdown + trace（Thought/Action/Observation 轨迹）
+```
+
+## 四个工具
+
+| 工具函数 | 作用 | 关键参数 |
+| :--- | :--- | :--- |
+| `search_courseware` | 在用户课件的文本索引中检索知识点 | `keyword`、`courseware_id` |
+| `generate_exercises` | 基于课件原文生成练习题与解析 | `context`、`count`、`difficulty` |
+| `generate_study_plan` | 按考试时间与薄弱点排备考计划 | `exam_date`、`weak_points` |
+| `archive_note` | 把产出归档进学习档案 | `title`、`content` |
+
+## 防死循环设计（必做）
+
+1. **最大轮次上限**：默认 8 轮，超出强制收敛输出。
+2. **任务完成判定**：模型返回 `final_answer` 或显式 `finish` 时立即结束。
+3. **工具失败重试上限**：同一工具连续失败 2 次即跳过并说明原因。
+4. **超时保护**：单次请求总时长上限（如 120s）。
+
+## 计划目录
+
+```text
+agent/
+├── requirements.txt
+├── .env.example                 # 只提交示例，真实 Key 在本地 .env
+├── app/
+│   ├── main.py                  # FastAPI 入口（/agent/chat、/health）
+│   ├── config.py
+│   ├── react_agent.py           # ReAct 循环控制器
+│   ├── prompts/                 # Prompt 模板
+│   ├── tools/                   # 四个工具的实现
+│   ├── parsers/                 # PDF / Word 解析与文本清洗
+│   └── retrieval/               # 课件文本索引与检索
+└── tests/
+```
+
+## 开发前必读
+
+- [团队协作规范](../docs/01-团队协作规范.md)
+- [开发环境与接口约定](../docs/03-开发环境与接口约定.md)
+
+## 提醒
+
+- `.env` 存 API Key，**已被 `.gitignore` 屏蔽，绝不提交**；仓库只提交 `.env.example`。
+- 课件 PDF 不进仓库（原创课件有版权，且体积大）。
+- 每次改 Prompt 后，把「输入 → trace → 输出」贴到 PR 里，方便对比效果。
