@@ -1,0 +1,148 @@
+# ============================================================
+# CourseMate · .gitignore
+# 规则：凡是「能自动生成的」「含密码的」「几十 MB 的」都不要提交
+# ============================================================
+
+# -------------------- 🔐 密钥与本地配置（最重要，绝对不能提交） --------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+application-local.yml
+application-local.yaml
+application-local.properties
+*-local.yml
+
+# -------------------- ☕ Java / Maven / Gradle --------------------
+target/
+build/
+out/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+.gradle/
+gradle-app.setting
+
+# -------------------- 🐍 Python --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.python-version
+*.egg-info/
+.eggs/
+dist/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+celerybeat-schedule
+*.log
+
+# -------------------- 🖥️ Node / Vue --------------------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.npm/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+.stylelintcache
+*.local
+
+# -------------------- 🗄️ 数据库与本地数据 --------------------
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+!sql/schema.sql
+!sql/init.sql
+data/
+mysql-data/
+
+# -------------------- 📄 用户上传的课件（体积大且含个人隐私，不进仓库） --------------------
+uploads/
+upload/
+files/
+storage/
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+!docs/**/*.pdf
+
+# -------------------- 🧰 IDE / 编辑器 --------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.factorypath
+nbbuild/
+nbdist/
+
+# -------------------- 🪟 操作系统 --------------------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+# -------------------- 🧪 测试与覆盖率 --------------------
+coverage/
+.coverage
+htmlcov/
+test-results/
+reports/
+allure-results/
+
+# -------------------- 📦 压缩包与临时文件 --------------------
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# -------------------- 🤖 Agent 运行产物 --------------------
+agent/logs/
+agent/tmp/
+vector_store/
+chroma_db/
+*.faiss

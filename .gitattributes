@@ -1,0 +1,44 @@
+# ============================================================
+# 统一换行符为 LF，避免 Windows / macOS 之间出现「整文件改动」
+# 详见：https://git-scm.com/docs/gitattributes
+# ============================================================
+
+* text=auto eol=lf
+
+# Windows 脚本保留 CRLF
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+
+# Linux / macOS 脚本保持 LF
+*.sh            text eol=lf
+
+# -------------------- 二进制文件：禁止自动转换 --------------------
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.ico           binary
+*.webp          binary
+*.pdf           binary
+*.doc           binary
+*.docx          binary
+*.xls           binary
+*.xlsx          binary
+*.ppt           binary
+*.pptx          binary
+*.zip           binary
+*.jar           binary
+*.class         binary
+*.woff          binary
+*.woff2         binary
+*.ttf           binary
+
+# -------------------- 让 GitHub 识别语言统计 --------------------
+*.java          linguist-language=Java
+*.vue           linguist-language=Vue
+*.py            linguist-language=Python
+
+# -------------------- Markdown 显示为文档 --------------------
+*.md            linguist-documentation=false
+docs/**         linguist-documentation=true
