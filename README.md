@@ -303,10 +303,10 @@ git push
 
 | 成员 | 角色 | 主要职责 | 工作分支 | 交付物 |
 | :---: | :--- | :--- | :--- | :--- |
-| **成员 1** | 🖥️ 前端开发 | Vue 页面、接口对接、Markdown/公式渲染 | `feature/frontend` | 登录 / 课件 / 对话 / 档案 页面 |
-| **成员 2** | ☕ 后端开发 | 数据库设计、用户与文件接口、调用 Python 服务 | `feature/backend` | 表结构、REST 接口、服务编排 |
-| **成员 3** | 🐍 Agent 开发 | LangChain ReAct 智能体、4 个工具、PDF 解析与清洗 | `feature/agent` | Agent 服务、工具实现、Prompt |
-| **成员 4** | 📋 测试 & 文档 | 仓库管理、功能测试、全套文档、用例图与流程图、答辩 PPT | `feature/docs` | 需求/设计/测试文档、PPT |
+| **朱斌** | 🖥️ 前端开发 | Vue 页面、接口对接、Markdown/公式渲染 | `feature/frontend` | 登录 / 课件 / 对话 / 档案 页面 |
+| **黄博成** | ☕ 后端开发 | 数据库设计、用户与文件接口、调用 Python 服务 | `feature/backend` | 表结构、REST 接口、服务编排 |
+| **伍宇钊** | 🐍 Agent 开发 | LangChain ReAct 智能体、4 个工具、PDF 解析与清洗 | `feature/agent` | Agent 服务、工具实现、Prompt |
+| **严博誉** | 📋 测试 & 文档 | 仓库管理、功能测试、全套文档、用例图与流程图、答辩 PPT | `feature/docs` | 需求/设计/测试文档、PPT |
 
 > 🙋 **GitHub 用户名待补充**：请各位把自己的 GitHub 用户名 / 昵称填到上面表格（或告知仓库负责人统一添加为 Collaborator）。
 
