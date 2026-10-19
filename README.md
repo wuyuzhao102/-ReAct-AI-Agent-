@@ -308,7 +308,7 @@ git push
 | **伍宇钊** | 🐍 Agent 开发 | LangChain ReAct 智能体、4 个工具、PDF 解析与清洗 | `feature/agent` | Agent 服务、工具实现、Prompt |
 | **严博誉** | 📋 测试 & 文档 | 仓库管理、功能测试、全套文档、用例图与流程图、答辩 PPT | `feature/docs` | 需求/设计/测试文档、PPT |
 
-> 🙋 **GitHub 用户名待补充**：请各位把自己的 GitHub 用户名 / 昵称填到上面表格（或告知仓库负责人统一添加为 Collaborator）。
+
 
 ---
 
