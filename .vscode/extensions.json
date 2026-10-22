@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "ms-python.flake8",
+    "Vue.volar",
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-spring-boot",
+    "redhat.vscode-yaml",
+    "eamodio.gitlens",
+    "bierner.markdown-mermaid",
+    "yzhang.markdown-all-in-one"
+  ]
+}
