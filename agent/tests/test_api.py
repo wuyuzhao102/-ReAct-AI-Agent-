@@ -1,14 +1,22 @@
-"""接口契约测试：保证 Java 业务层按约定调过来时能正常工作。
+"""接口契约测试：保证 Java 业务层按约定调过来时能正常工作。"""
 
-运行（在 agent/ 目录下）：
-    .venv\\Scripts\\python.exe -m pytest
-"""
+from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.store.memory import DEMO_COURSEWARE, store
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _seed():
+    store.clear()
+    store.add_courseware(1, "高等数学（上）· 第一章 极限", DEMO_COURSEWARE)
+    yield
+    store.clear()
 
 
 def test_root_returns_service_info():
@@ -23,8 +31,23 @@ def test_health_reports_ok_and_hides_key():
     body = resp.json()
     assert body["status"] == "ok"
     assert "llm_configured" in body
+    assert body["reasoner"] in {"rule-based", "llm"}
     # 健康检查不能把密钥吐出来
     assert "llm_api_key" not in body
+
+
+def test_tools_endpoint_lists_four_tools():
+    resp = client.get("/agent/tools")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["count"] == 4
+    names = {t["name"] for t in body["tools"]}
+    assert names == {
+        "search_courseware",
+        "generate_exercises",
+        "generate_study_plan",
+        "archive_note",
+    }
 
 
 def test_chat_accepts_java_camel_case_contract():
@@ -32,7 +55,7 @@ def test_chat_accepts_java_camel_case_contract():
     payload = {
         "userId": 1,
         "sessionId": "sess-0001",
-        "coursewareId": 12,
+        "coursewareId": 1,
         "question": "下周要考高数极限，帮我复习",
     }
     resp = client.post("/agent/chat", json=payload)
@@ -40,8 +63,11 @@ def test_chat_accepts_java_camel_case_contract():
 
     body = resp.json()
     assert body["finished"] is True
-    assert body["answer"].startswith("###")
-    assert len(body["trace"]) == 1
+    assert body["answer"]
+    # 至少走过 检索 → 出题 → 归档
+    actions = [t["action"] for t in body["trace"] if t["action"]]
+    assert actions[:2] == ["search_courseware", "generate_exercises"]
+    assert "archive_note" in actions
     assert body["trace"][0]["step"] == 1
 
 
@@ -50,6 +76,7 @@ def test_chat_works_without_courseware_id():
     payload = {"userId": 2, "sessionId": "sess-0002", "question": "概率论怎么复习"}
     resp = client.post("/agent/chat", json=payload)
     assert resp.status_code == 200
+    assert resp.json()["answer"]
 
 
 def test_chat_rejects_empty_question():

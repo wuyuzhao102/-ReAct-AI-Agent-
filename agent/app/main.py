@@ -1,31 +1,47 @@
 """FastAPI 入口。
 
 启动（在 agent/ 目录下）：
-    uvicorn app.main:app --reload --port 8000
-    # 或者 python -m app.main
+    .venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000
 
 接口：
-    GET  /health       健康检查
-    POST /agent/chat   ReAct 对话（当前为骨架占位，下一步接入循环）
+    GET  /              服务信息
+    GET  /health        健康检查
+    GET  /agent/tools   当前可用工具清单（调试用）
+    POST /agent/chat    ReAct 对话
 """
+
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
 from app.config import get_settings
-from app.schemas import ChatRequest, ChatResponse, TraceStep
+from app.react.agent import ReActAgent
+from app.react.reasoner import RuleBasedReasoner
+from app.schemas import ChatRequest, ChatResponse
+from app.store.memory import boot_demo_data
+from app.tools.box import ToolBox
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # 开发期灌一份样例课件，方便前后端联调；接入真实上传后去掉
+    if settings.app_env == "dev":
+        boot_demo_data()
+    yield
+
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description="基于 ReAct 的课程学习助手 · 智能体服务",
+    lifespan=lifespan,
 )
 
 
 @app.get("/", tags=["meta"])
 def root() -> dict:
-    """根路径，方便浏览器直接确认服务活着。"""
     return {
         "service": "coursemate-agent",
         "version": settings.app_version,
@@ -35,45 +51,52 @@ def root() -> dict:
 
 @app.get("/health", tags=["meta"])
 def health() -> dict:
-    """健康检查。
-
-    注意：只回报"是否配置了 Key"，不返回 Key 本身，避免泄露。
-    """
+    """健康检查。只回报"是否配置了 Key"，不返回 Key 本身。"""
     return {
         "status": "ok",
         "env": settings.app_env,
         "llm_configured": settings.llm_configured,
         "llm_model": settings.llm_model,
         "max_react_steps": settings.max_react_steps,
+        "reasoner": "llm" if settings.llm_configured else "rule-based",
+    }
+
+
+@app.get("/agent/tools", tags=["agent"])
+def list_tools() -> dict:
+    """列出当前可用工具（前端调试、答辩演示都能用）。"""
+    box = ToolBox(user_id=0, session_id="inspect")
+    return {
+        "count": len(box.names),
+        "tools": [
+            {
+                "name": tool.name,
+                "description": tool.description,
+                "parameters": tool.parameters,
+            }
+            for tool in box.registry.all()
+        ],
     }
 
 
 @app.post("/agent/chat", response_model=ChatResponse, tags=["agent"])
 def chat(request: ChatRequest) -> ChatResponse:
-    """ReAct 对话接口（骨架版）。
+    """ReAct 对话。
 
-    ⚠️ 当前为占位实现：只把请求回显成 Markdown，不做任何推理。
-       下一步会把这里替换成真正的 ReAct 循环：
-       Thought → Action(工具) → Observation → ... → Final Answer
+    当前用规则引擎驱动（不依赖大模型），整条链路 —— 检索 → 出题 →（排计划）→ 归档 —— 都能走通。
+    接入大模型后，这里只需把 RuleBasedReasoner 换成 LLMReasoner。
     """
-    trace = [
-        TraceStep(
-            step=1,
-            thought="骨架阶段：先确认 Java 业务层能正常把请求转发过来，ReAct 循环尚未接入。",
-            action=None,
-            observation=None,
-        )
-    ]
-    answer = (
-        f"### 收到你的问题\n\n"
-        f"> {request.question}\n\n"
-        f"当前是**服务骨架**，还没有接入大模型与工具。\n\n"
-        f"- 用户 ID：`{request.user_id}`\n"
-        f"- 会话 ID：`{request.session_id}`\n"
-        f"- 课件 ID：`{request.courseware_id}`\n"
-        f"- 已配置大模型：`{settings.llm_configured}`\n"
+    toolbox = ToolBox(
+        user_id=request.user_id,
+        session_id=request.session_id,
+        courseware_id=request.courseware_id,
     )
-    return ChatResponse(answer=answer, trace=trace, finished=True)
+    agent = ReActAgent(
+        toolbox=toolbox,
+        reasoner=RuleBasedReasoner(),
+        max_steps=settings.max_react_steps,
+    )
+    return agent.run(request.question)
 
 
 if __name__ == "__main__":  # pragma: no cover

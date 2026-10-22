@@ -54,19 +54,52 @@ agent/
 ├── .env.example                  # ✅ 环境变量示例（真 Key 放本地 .env）
 ├── pytest.ini                    # ✅ 测试配置
 ├── app/
-│   ├── main.py                   # ✅ FastAPI 入口（/、/health、/agent/chat）
+│   ├── main.py                   # ✅ FastAPI 入口（/、/health、/agent/tools、/agent/chat）
 │   ├── config.py                 # ✅ 配置（环境变量 / .env）
 │   ├── schemas.py                # ✅ 与 Java 层的数据契约
 │   ├── parsers/
 │   │   └── cleaner.py            # ✅ 课件文本清洗
-│   ├── react_agent.py            # ⏳ ReAct 循环控制器
-│   ├── prompts/                  # ⏳ Prompt 模板
-│   ├── tools/                    # ⏳ 四个工具的实现
-│   └── retrieval/                # ⏳ 课件检索（关键词 / 向量）
+│   ├── store/
+│   │   └── memory.py             # ✅ 内存数据层（接 MySQL 后替换）
+│   ├── tools/
+│   │   ├── base.py               # ✅ 工具定义与注册表
+│   │   ├── box.py                # ✅ 按用户绑定工具箱
+│   │   ├── courseware.py         # ✅ 工具①课件检索
+│   │   ├── exercise.py           # ✅ 工具②出题（规则版）
+│   │   ├── plan.py               # ✅ 工具③备考计划
+│   │   └── archive.py            # ✅ 工具④笔记归档
+│   └── react/
+│       ├── agent.py              # ✅ ReAct 循环 + 四条安全阀
+│       ├── reasoner.py           # ✅ 规则兜底（LLM 版 ⏳ 待接入）
+│       └── types.py              # ✅ 决策数据结构
 └── tests/
-    ├── test_api.py               # ✅ 接口契约测试
-    └── test_cleaner.py           # ✅ 文本清洗测试
+    ├── test_api.py               # ✅ 接口契约
+    ├── test_tools.py             # ✅ 四个工具
+    ├── test_react_loop.py        # ✅ 循环与安全阀
+    └── test_cleaner.py           # ✅ 文本清洗
 ```
+
+## ReAct 循环怎么跑
+
+```
+用户提问
+  ↓
+ReActAgent 循环（最多 max_react_steps 轮）
+  ├─ Reasoner.decide()  →  Thought + Action / 最终答案
+  ├─ ToolBox 执行工具    →  Observation
+  └─ 四条安全阀：轮次上限 / 重复调用打断 / 工具异常转观察 / 必定返回
+  ↓
+ChatResponse { answer(Markdown), trace[思考轨迹], finished }
+```
+
+`trace` 是答辩亮点：前端可以把每一步 Thought / Action / Observation 展开给学生看。
+
+**当前由 `RuleBasedReasoner` 驱动**（不依赖大模型），走到的是：
+检索 → 出题 →（有考试日期则）排计划 → 归档 → 总结。
+
+**下一步**：新增 `LLMReasoner`（把 `registry.describe()` 塞进 prompt，让大模型输出 Thought/Action JSON），
+在 `main.py` 里按 `settings.llm_configured` 选择用哪个 Reasoner —— 循环与工具层一行都不用改。
+
 
 ## 本地运行（VS Code）
 
