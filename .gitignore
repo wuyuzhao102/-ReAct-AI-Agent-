@@ -49,6 +49,7 @@ dist/
 pip-log.txt
 pip-delete-this-directory.txt
 .pytest_cache/
+pytest-cache-files-*/
 .mypy_cache/
 .ruff_cache/
 .ipynb_checkpoints/
