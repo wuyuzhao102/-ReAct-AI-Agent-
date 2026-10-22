@@ -11,7 +11,7 @@ from app.tools.base import tool
 
 
 @tool(
-    name="search_courseware",
+    name="课件检索",
     description=(
         "在学生上传的课件原文中检索知识点，返回匹配到的课件段落。"
         "凡是涉及课程内容的问题，必须先调用本工具取得原文依据，禁止凭记忆直接作答。"

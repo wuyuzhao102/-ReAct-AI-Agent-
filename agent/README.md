@@ -34,10 +34,10 @@
 
 | 工具函数 | 作用 | 关键参数 |
 | :--- | :--- | :--- |
-| `search_courseware` | 在用户课件的文本索引中检索知识点 | `keyword`、`courseware_id` |
-| `generate_exercises` | 基于课件原文生成练习题与解析 | `context`、`count`、`difficulty` |
-| `generate_study_plan` | 按考试时间与薄弱点排备考计划 | `exam_date`、`weak_points` |
-| `archive_note` | 把产出归档进学习档案 | `title`、`content` |
+| `课件检索` | 在用户课件的文本索引中检索知识点 | `keyword`、`courseware_id` |
+| `习题生成` | 基于课件原文生成练习题与解析 | `context`、`count`、`difficulty` |
+| `备考计划` | 按考试时间与薄弱点排备考计划 | `exam_date`、`weak_points` |
+| `笔记归档` | 把产出归档进学习档案 | `title`、`content` |
 
 ## 防死循环设计（必做）
 

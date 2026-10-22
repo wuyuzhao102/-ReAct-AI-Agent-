@@ -11,7 +11,7 @@ from app.tools.base import Tool, tool
 
 def make_archive_tool(user_id: int, session_id: str) -> Tool:
     @tool(
-        name="archive_note",
+        name="笔记归档",
         description="把本次生成的复习提纲、练习题等资料归档到学生的个人学习档案，返回笔记编号。",
         parameters={
             "type": "object",

@@ -69,7 +69,7 @@ class ReActAgent:
         payload = dict(decision.action_input or {})
         # 请求里指定了课件时，自动补进检索参数（模型不需要知道这件事）
         if (
-            decision.action == "search_courseware"
+            decision.action == "课件检索"
             and self.toolbox.courseware_id is not None
             and payload.get("courseware_id") is None
         ):

@@ -45,18 +45,18 @@ def test_toolbox_registers_four_tools():
     box = ToolBox(user_id=1, session_id="s")
     assert len(box.names) == 4
     assert set(box.names) == {
-        "search_courseware",
-        "generate_exercises",
-        "generate_study_plan",
-        "archive_note",
+        "课件检索",
+        "习题生成",
+        "备考计划",
+        "笔记归档",
     }
 
 
 def test_registry_describe_lists_tools_with_required_args():
     box = ToolBox(user_id=1, session_id="s")
     text = box.describe()
-    assert "search_courseware(keyword)" in text
-    assert "archive_note(title, content)" in text
+    assert "课件检索(keyword)" in text
+    assert "笔记归档(title, content)" in text
 
 
 # ---------------- 检索 ----------------

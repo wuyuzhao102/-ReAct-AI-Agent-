@@ -72,10 +72,10 @@ def _split_sections(text: str) -> list[tuple[str, str]]:
 
 
 @tool(
-    name="generate_exercises",
+    name="习题生成",
     description=(
         "基于给定的课件原文生成配套练习题与参考答案。"
-        "调用前应先用 search_courseware 拿到可信的课件内容，把原文放进 context。"
+        "调用前应先用课件检索工具拿到可信的课件内容，把原文放进 context。"
     ),
     parameters={
         "type": "object",
@@ -95,7 +95,7 @@ def _split_sections(text: str) -> list[tuple[str, str]]:
 def generate_exercises(context: str, count: int = 3, difficulty: str = "medium") -> str:
     context = _strip_retrieval_wrapper(context or "").strip()
     if not context:
-        return "没有提供课件原文，无法出题。请先调用 search_courseware 取得内容。"
+        return "没有提供课件原文，无法出题。请先调用课件检索工具取得内容。"
 
     try:
         count = max(1, min(int(count), 10))

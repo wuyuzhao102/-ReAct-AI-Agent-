@@ -31,7 +31,7 @@ def _parse_date(text: str) -> date | None:
 
 
 @tool(
-    name="generate_study_plan",
+    name="备考计划",
     description="根据考试日期和薄弱知识点，生成按天划分的备考计划。",
     parameters={
         "type": "object",

@@ -51,7 +51,7 @@ def test_rule_reasoner_completes_full_chain():
 
     assert result.finished is True
     actions = [t.action for t in result.trace if t.action]
-    assert actions == ["search_courseware", "generate_exercises", "archive_note"]
+    assert actions == ["课件检索", "习题生成", "笔记归档"]
     assert len(result.trace) == 4  # 3 次工具 + 1 次收尾
     assert "课件里的依据" in result.answer
     assert "配套练习" in result.answer
@@ -62,7 +62,7 @@ def test_rule_reasoner_adds_plan_when_exam_date_given():
     result = _agent(RuleBasedReasoner()).run(f"我 {exam} 要考试，帮我安排复习计划")
 
     actions = [t.action for t in result.trace if t.action]
-    assert "generate_study_plan" in actions
+    assert "备考计划" in actions
     assert result.finished is True
     assert "备考计划" in result.answer
 
@@ -70,7 +70,7 @@ def test_rule_reasoner_adds_plan_when_exam_date_given():
 # ---------------- 安全阀 1：轮次上限 ----------------
 def test_stops_at_max_steps():
     reasoner = ScriptedReasoner(
-        [StepDecision(thought="一直检索", action="search_courseware", action_input={"keyword": "极限"})]
+        [StepDecision(thought="一直检索", action="课件检索", action_input={"keyword": "极限"})]
     )
     result = _agent(reasoner, max_steps=1).run("极限")
 
@@ -81,7 +81,7 @@ def test_stops_at_max_steps():
 
 # ---------------- 安全阀 2：重复调用 ----------------
 def test_aborts_on_repeated_identical_action():
-    same = StepDecision(thought="重复", action="search_courseware", action_input={"keyword": "极限"})
+    same = StepDecision(thought="重复", action="课件检索", action_input={"keyword": "极限"})
     result = _agent(ScriptedReasoner([same, same, same])).run("极限")
 
     assert result.finished is False
@@ -107,7 +107,7 @@ def test_unknown_tool_becomes_observation():
 def test_wrong_arguments_become_observation():
     reasoner = ScriptedReasoner(
         [
-            StepDecision(thought="少传参数", action="archive_note", action_input={}),
+            StepDecision(thought="少传参数", action="笔记归档", action_input={}),
             StepDecision(thought="收尾", final_answer="好的"),
         ]
     )
@@ -122,7 +122,7 @@ def test_courseware_id_is_auto_injected():
 
     class SpyReasoner:
         def decide(self, **_: object) -> StepDecision:
-            return StepDecision(thought="检索", action="search_courseware", action_input={"keyword": "极限"})
+            return StepDecision(thought="检索", action="课件检索", action_input={"keyword": "极限"})
 
     box = ToolBox(user_id=1, session_id="s", courseware_id=999)
     agent = ReActAgent(toolbox=box, reasoner=SpyReasoner(), max_steps=1)

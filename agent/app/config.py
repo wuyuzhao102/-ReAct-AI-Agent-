@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     )
 
     # ---------- 服务 ----------
-    app_name: str = "CourseMate Agent Service"
+    app_name: str = "课程学习助手 · 智能体服务"
     app_version: str = "0.1.0"
     app_env: str = "dev"
     log_level: str = "INFO"

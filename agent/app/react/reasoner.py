@@ -57,33 +57,33 @@ class RuleBasedReasoner:
         done = {t.action for t in trace if t.action}
         observation = _last_observation(trace)
 
-        if "search_courseware" not in done:
+        if "课件检索" not in done:
             return StepDecision(
                 thought="用户问的是课程内容，先检索他自己的课件，拿到原文再作答。",
-                action="search_courseware",
+                action="课件检索",
                 action_input={"keyword": question},
             )
 
-        if "generate_exercises" not in done:
+        if "习题生成" not in done:
             return StepDecision(
                 thought="已拿到课件原文，基于它出一组配套练习。",
-                action="generate_exercises",
+                action="习题生成",
                 action_input={"context": observation, "count": 3, "difficulty": "medium"},
             )
 
         exam_date = self._extract_date(question)
         # 只要提到考试日期，就补一份倒排计划
-        if exam_date is not None and "generate_study_plan" not in done:
+        if exam_date is not None and "备考计划" not in done:
             return StepDecision(
                 thought=f"用户提到了考试时间 {exam_date}，补一份倒排复习计划。",
-                action="generate_study_plan",
+                action="备考计划",
                 action_input={"exam_date": exam_date, "weak_points": question},
             )
 
-        if "archive_note" not in done:
+        if "笔记归档" not in done:
             return StepDecision(
                 thought="资料齐了，存进个人学习档案，方便考前回看。",
-                action="archive_note",
+                action="笔记归档",
                 action_input={
                     "title": f"复习资料：{question[:20]}",
                     "content": self._collect_content(trace),
@@ -111,16 +111,16 @@ class RuleBasedReasoner:
 
     def _final_answer(self, question: str, trace: list[TraceStep]) -> str:
         search_obs = next(
-            (t.observation for t in trace if t.action == "search_courseware"), ""
+            (t.observation for t in trace if t.action == "课件检索"), ""
         )
         exercise_obs = next(
-            (t.observation for t in trace if t.action == "generate_exercises"), ""
+            (t.observation for t in trace if t.action == "习题生成"), ""
         )
         plan_obs = next(
-            (t.observation for t in trace if t.action == "generate_study_plan"), ""
+            (t.observation for t in trace if t.action == "备考计划"), ""
         )
         archive_obs = next(
-            (t.observation for t in trace if t.action == "archive_note"), ""
+            (t.observation for t in trace if t.action == "笔记归档"), ""
         )
 
         blocks = [f"## 关于「{question[:40]}」的复习资料", ""]
