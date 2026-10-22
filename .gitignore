@@ -93,6 +93,7 @@ storage/
 *.ppt
 *.pptx
 !docs/**/*.pdf
+!docs/**/*.docx
 
 # -------------------- 🧰 IDE / 编辑器 --------------------
 .idea/
