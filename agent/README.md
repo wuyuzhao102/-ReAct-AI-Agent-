@@ -46,22 +46,69 @@
 3. **工具失败重试上限**：同一工具连续失败 2 次即跳过并说明原因。
 4. **超时保护**：单次请求总时长上限（如 120s）。
 
-## 计划目录
+## 目录结构（✅ 已实现 ／ ⏳ 规划中）
 
 ```text
 agent/
-├── requirements.txt
-├── .env.example                 # 只提交示例，真实 Key 在本地 .env
+├── requirements.txt              # ✅ 依赖
+├── .env.example                  # ✅ 环境变量示例（真 Key 放本地 .env）
+├── pytest.ini                    # ✅ 测试配置
 ├── app/
-│   ├── main.py                  # FastAPI 入口（/agent/chat、/health）
-│   ├── config.py
-│   ├── react_agent.py           # ReAct 循环控制器
-│   ├── prompts/                 # Prompt 模板
-│   ├── tools/                   # 四个工具的实现
-│   ├── parsers/                 # PDF / Word 解析与文本清洗
-│   └── retrieval/               # 课件文本索引与检索
+│   ├── main.py                   # ✅ FastAPI 入口（/、/health、/agent/chat）
+│   ├── config.py                 # ✅ 配置（环境变量 / .env）
+│   ├── schemas.py                # ✅ 与 Java 层的数据契约
+│   ├── parsers/
+│   │   └── cleaner.py            # ✅ 课件文本清洗
+│   ├── react_agent.py            # ⏳ ReAct 循环控制器
+│   ├── prompts/                  # ⏳ Prompt 模板
+│   ├── tools/                    # ⏳ 四个工具的实现
+│   └── retrieval/                # ⏳ 课件检索（关键词 / 向量）
 └── tests/
+    ├── test_api.py               # ✅ 接口契约测试
+    └── test_cleaner.py           # ✅ 文本清洗测试
 ```
+
+## 本地运行（VS Code）
+
+### 1. 虚拟环境（已建好，路径 `agent/.venv`）
+
+```powershell
+# 如果 .venv 被删了，重新建（注意用 --without-pip，本机 ensurepip 不可用）
+D:\python\python.exe -m venv --without-pip .venv
+D:\python\python.exe -m pip --python .venv\Scripts\python.exe install -r requirements.txt
+```
+
+### 2. 配 Key
+
+```powershell
+copy .env.example .env
+# 然后编辑 .env，把 LLM_API_KEY 换成自己的（DeepSeek 或通义千问）
+```
+
+### 3. 启动
+
+```powershell
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+```
+
+打开 http://localhost:8000/docs 能看到自动生成的接口文档。
+
+### 4. 测试
+
+```powershell
+.venv\Scripts\python.exe -m pytest
+```
+
+### 5. VS Code 里更省事
+
+- 仓库根目录已提交 `.vscode/settings.json`、`launch.json`、`extensions.json`
+- 首次打开会提示 **安装推荐扩展**，点安装即可（Python、Pylance、Vue、Java、GitLens…）
+- 按 **F5** 选 `🐍 Agent 服务 (FastAPI :8000)` 就能断点调试
+- 测试面板（烧瓶图标）里可以直接点运行，不用敲命令
+
+> ⚠️ 环境说明：本机 Python 是 **3.14**，`venv` 自带 pip 的引导（ensurepip）在这台机器上不可用，
+> 所以要用上面的 `--without-pip` + 基础 pip 的方式建环境。其他同学如果是 3.11/3.12 直接用 `python -m venv .venv` 即可。
+
 
 ## 开发前必读
 
