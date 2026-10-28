@@ -49,6 +49,7 @@ dist/
 pip-log.txt
 pip-delete-this-directory.txt
 .pytest_cache/
+pytest-cache-files-*/
 .mypy_cache/
 .ruff_cache/
 .ipynb_checkpoints/
@@ -92,15 +93,18 @@ storage/
 *.ppt
 *.pptx
 !docs/**/*.pdf
+!docs/**/*.docx
 
 # -------------------- 🧰 IDE / 编辑器 --------------------
 .idea/
 *.iml
 *.ipr
 *.iws
-.vscode/
+.vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json.example
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
 *.swp
 *.swo
 *~
