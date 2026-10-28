@@ -41,5 +41,17 @@
     "**/target": true,
     "**/.venv": true,
     "**/dist": true
-  }
+  },
+  "editor.unusualLineTerminators": "ignore",
+  "[xml]": {
+    "editor.formatOnSave": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.wordWrap": "bounded",
+    "editor.wordWrapColumn": 120
+  },
+  "files.associations": {
+    "*.xml": "xml"
+  },
+  "files.autoGuessEncoding": true
 }
