@@ -1,0 +1,32 @@
+@startuml 08-活动图-复习主流程
+title 基于课件复习 · 活动图
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+|学生|
+start
+:登录系统;
+:上传课件;
+|系统|
+:校验格式大小;
+if (校验通过?) then (否)
+  :提示错误原因;
+  stop
+else (是)
+endif
+:提取并清洗文本;
+:建立检索索引;
+|学生|
+:输入复习需求;
+|系统|
+repeat
+  :Thought 思考;
+  :Action 调用工具;
+  :Observation 观察;
+repeat while (任务未完成且未触发安全阀?)
+:渲染 Markdown 结果;
+|学生|
+:查看回答与思考轨迹;
+:进入学习档案回看;
+stop
+@enduml

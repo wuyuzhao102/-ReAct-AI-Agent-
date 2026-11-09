@@ -1,0 +1,40 @@
+@startuml 04-时序图-上传课件
+title UC-02 上传并解析课件 · 时序图
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+actor "学生" as S
+boundary "课件页面" as UI
+control "业务服务" as BE
+control "智能体服务" as PY
+database "MySQL" as DB
+participant "文件存储" as FS
+
+S -> UI : 选择 PDF/Word 文件并上传
+UI -> BE : POST /api/courseware/upload (multipart)
+BE -> BE : JWT 鉴权
+BE -> BE : 校验格式（pdf/doc/docx）与大小（≤10MB）
+alt 校验失败
+  BE --> UI : {code:2001, message:"文件类型不支持"}
+  UI --> S : 中文提示
+else 校验通过
+  BE -> FS : 保存原始文件
+  BE -> DB : 写入课件元数据（parse_status=0 解析中）
+  BE -> PY : 触发解析（课件ID, 存储路径）
+  activate PY
+  PY -> PY : PyPDF/python-docx 提取文本
+  PY -> PY : 文本清洗（合并断行、去页码、去零宽字符）
+  alt 提取失败（扫描件等）
+    PY -> DB : parse_status=2, 记录失败原因
+    PY --> BE : 解析失败
+    BE --> UI : 状态=失败 + 原因
+  else 提取成功
+    PY -> DB : 写入课件文本与索引
+    PY -> DB : parse_status=1 已完成
+    PY --> BE : 解析完成
+    BE --> UI : 状态=已完成
+  end
+  deactivate PY
+  UI --> S : 列表刷新显示课件
+end
+@enduml

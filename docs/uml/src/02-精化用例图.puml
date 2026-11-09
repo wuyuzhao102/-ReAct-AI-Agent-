@@ -1,0 +1,67 @@
+@startuml 02-精化用例图
+title 校园课程学习助手 · 精化用例图
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+actor "学生" as student
+actor "大模型服务" as llm <<外部系统>>
+
+package "用户管理" {
+  usecase "注册" as U1
+  usecase "登录" as U2
+  usecase "JWT 鉴权" as U3
+}
+
+package "课件管理" {
+  usecase "上传课件" as C1
+  usecase "校验格式大小" as C2
+  usecase "提取并清洗文本" as C3
+  usecase "建立检索索引" as C4
+  usecase "查看课件列表" as C5
+  usecase "删除课件" as C6
+}
+
+package "智能对话" {
+  usecase "发起对话" as A1
+  usecase "ReAct 循环" as A2
+  usecase "工具：课件检索" as T1
+  usecase "工具：习题生成" as T2
+  usecase "工具：备考计划" as T3
+  usecase "工具：笔记归档" as T4
+  usecase "返回思考轨迹" as A3
+  usecase "触发安全阀" as A4
+}
+
+package "学习档案" {
+  usecase "查看历史对话" as R1
+  usecase "查看笔记" as R2
+  usecase "查看错题" as R3
+}
+
+student --> U1
+student --> U2
+student --> C1
+student --> C5
+student --> C6
+student --> A1
+student --> A3
+student --> R1
+student --> R2
+student --> R3
+
+U2 ..> U3 : <<include>>
+C1 ..> C2 : <<include>>
+C1 ..> C3 : <<include>>
+C3 ..> C4 : <<include>>
+A1 ..> A2 : <<include>>
+A2 ..> T1 : <<include>>  先检索再作答
+A2 ..> T4 : <<include>>
+A2 <.. T2 : <<extend>>
+A2 <.. T3 : <<extend>>  含考试日期时
+A2 <.. A4 : <<extend>>  轮次超限/重复调用/工具异常
+T1 ..> llm : <<use>>
+T2 ..> llm : <<use>>
+@enduml

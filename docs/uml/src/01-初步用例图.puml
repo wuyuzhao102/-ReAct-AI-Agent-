@@ -1,0 +1,50 @@
+@startuml 01-初步用例图
+title 校园课程学习助手 · 初步用例图
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 13
+
+actor "学生" as student
+actor "指导教师" as teacher
+
+rectangle "校园课程学习助手平台" {
+  usecase "注册账号" as UC1
+  usecase "登录系统" as UC2
+  usecase "上传课件" as UC3
+  usecase "解析课件" as UC4
+  usecase "删除课件" as UC5
+  usecase "自然语言提问" as UC6
+  usecase "查看思考轨迹" as UC7
+  usecase "生成复习提纲" as UC8
+  usecase "生成练习题" as UC9
+  usecase "生成备考计划" as UC10
+  usecase "归档笔记" as UC11
+  usecase "查看学习档案" as UC12
+  usecase "查看错题" as UC13
+}
+
+student --> UC1
+student --> UC2
+student --> UC3
+student --> UC5
+student --> UC6
+student --> UC7
+student --> UC12
+student --> UC13
+
+UC3 ..> UC4 : <<include>>
+UC6 ..> UC8 : <<include>>
+UC6 ..> UC9 : <<include>>
+UC6 ..> UC11 : <<include>>
+UC10 <.. UC6 : <<extend>>
+UC7 <.. UC6 : <<extend>>
+
+teacher ..> UC12 : 抽查学习情况
+
+note right of UC6
+  核心用例：触发 ReAct 循环
+  必须先检索课件原文再作答
+end note
+@enduml
