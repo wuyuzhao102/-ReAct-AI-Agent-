@@ -1,0 +1,41 @@
+@startuml 05-部署图
+title 校园课程学习助手 · 部署模型（物理视点 · 单机多服务）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+skinparam nodeStyle modern
+
+node "浏览器\n（学生电脑）" as CLIENT {
+  artifact "Chrome / Edge" as BROWSER
+}
+
+node "应用服务器\n（开发/演示机 · Windows）" as APPSERVER {
+  artifact "前端静态资源\nnginx 或 vite preview\n<<port 5173>>" as WEB
+  artifact "coursemate-backend.jar\nSpring Boot 3 · JDK 17\n<<port 8080>>" as JAR
+  artifact "agent 服务\nuvicorn · Python 3.11\n<<port 8000>>" as PY
+  artifact "本地文件存储\nuploads/\nPDF/Word 原件" as STORAGE
+}
+
+node "数据库服务器\n（与应用服务器同机）" as DBSERVER {
+  artifact "MySQL 8.0\n<<port 3306>>\nutf8mb4" as MYSQL
+}
+
+cloud "外部服务" as EXT {
+  artifact "大模型 API\nDeepSeek / 通义千问\nHTTPS 443" as LLM
+}
+
+BROWSER ..> WEB : HTTP 5173\n页面与静态资源
+WEB ..> JAR : REST /api/**\nHTTP 8080 + JWT
+JAR ..> PY : HTTP 8000\n/agent/chat JSON
+JAR ..> MYSQL : JDBC 3306
+JAR ..> STORAGE : 读写课件原件
+PY ..> MYSQL : 只读检索\n课件文本索引
+PY ..> LLM : HTTPS 推理调用
+
+note bottom of APPSERVER
+  部署形态：单机多进程
+  · 三个服务同机部署，进程隔离
+  · 前后端通过端口区分
+  · 生产可平滑迁移：三服务
+    均无本地状态依赖
+end note
+@enduml

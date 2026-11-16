@@ -1,0 +1,67 @@
+@startuml 02-构件图
+title 校园课程学习助手 · 构件图（Component View）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+skinparam componentStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 50
+
+package "前端构件（frontend）" {
+  component "Web界面\n[Vue3 + Element Plus]" as FE {
+    interface "页面路由" as FEI1
+    interface "Markdown渲染" as FEI2
+  }
+}
+
+package "业务构件（backend · Spring Boot 3）" {
+  component "用户管理构件" as UC {
+    interface "注册登录 /api/auth" as UCI
+  }
+  component "课件管理构件" as CC {
+    interface "课件接口 /api/courseware" as CCI
+    interface "文件存储" as CCF
+  }
+  component "对话网关构件" as CG {
+    interface "对话接口 /api/chat" as CGI
+    interface "代理转发" as CGP
+  }
+  component "档案查询构件" as AR {
+    interface "档案接口 /api/archive" as ARI
+  }
+}
+
+package "智能体构件（agent · FastAPI）" {
+  component "ReAct引擎构件" as RA {
+    interface "对话服务 /agent/chat" as RAI
+  }
+  component "解析服务构件" as PS {
+    interface "解析触发" as PSI
+  }
+}
+
+package "外部服务" {
+  component "大模型API" as LLM {
+    interface "推理接口" as LI
+  }
+}
+
+database "MySQL" as DB
+folder "文件存储" as FS
+
+FE ..> UCI : HTTP/JSON
+FE ..> CCI
+FE ..> CGI
+FE ..> ARI
+CG ..> CGP : 转发
+CGP ..> RAI : HTTP/JSON
+CC ..> PSI : 解析
+PS ..> DB : 索引
+PS ..> FS : 读原件
+RA ..> DB : 只读检索
+RA ..> LI : HTTPS
+UC ..> DB
+CC ..> FS
+CC ..> DB
+AR ..> DB
+CG ..> DB : 会话记录
+@enduml

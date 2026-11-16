@@ -1,0 +1,38 @@
+@startuml 06-运行时交互图
+title 校园课程学习助手 · 运行时进程交互（物理视点补充）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+participant "浏览器\n:5173" as FE
+participant "业务服务\n:8080" as BE
+participant "智能体\n:8000" as AG
+database "MySQL\n:3306" as DB
+participant "大模型\n:443" as LLM
+
+== 一次完整对话的跨进程调用链 ==
+FE -> BE : POST /api/chat/send\n（带 JWT）
+BE -> DB : 校验用户、查会话
+DB --> BE : 会话数据
+BE -> AG : POST /agent/chat\n{userId, question}
+activate AG
+
+AG -> DB : 课件检索（只读）
+DB --> AG : 课件原文段落
+AG -> LLM : 推理请求（思考+出题）
+LLM --> AG : 回答
+AG -> DB : 归档笔记（绑定 userId）
+DB --> AG : 笔记编号
+
+AG --> BE : {answer, trace, finished}
+deactivate AG
+BE -> DB : 保存消息与轨迹
+BE --> FE : 统一返回体
+FE -> FE : 渲染 Markdown\n展开思考轨迹
+
+note over AG
+  智能体服务内部：
+  ReAct 循环统一编排
+  上述 DB/LLM 调用均
+  由四个工具执行
+end note
+@enduml

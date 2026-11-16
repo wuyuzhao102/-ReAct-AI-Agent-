@@ -1,0 +1,83 @@
+@startuml 04-精化设计类图
+title 校园课程学习助手 · 精化设计类图（核心设计类）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam classAttributeIconSize 0
+skinparam nodesep 40
+
+interface 决策器 <<interface>> {
+  +decide(step, question, trace) : StepDecision
+}
+
+class 规则决策器 {
+  +decide() : StepDecision
+}
+
+class 大模型决策器 {
+  -client : LLMClient
+  -prompt模板 : PromptBuilder
+  +decide() : StepDecision
+}
+
+class ReAct循环引擎 {
+  -toolbox : ToolBox
+  -reasoner : 决策器
+  -maxSteps : int = 8
+  +run(question) : ChatResponse
+  -executeTool(decision) : String
+  -signature(decision) : String
+  -abort(reason, trace) : ChatResponse
+}
+
+class 工具箱 {
+  -userId : int
+  -sessionId : String
+  -registry : ToolRegistry
+  +注册工具() : void
+}
+
+class 工具 <<abstract>> {
+  #name : String
+  #description : String
+  #parameters : Schema
+  +run(**kwargs) : String
+}
+
+class 课件检索工具
+class 习题生成工具
+class 备考计划工具
+class 笔记归档工具
+
+class 课件解析服务 {
+  +解析(课件ID) : 解析结果
+}
+
+class 文本清洗器 <<utility>> {
+  +{static} 清洗(rawText) : String
+  +{static} 检索归一(text) : String
+}
+
+决策器 <|.. 规则决策器
+决策器 <|.. 大模型决策器
+ReAct循环引擎 o-- 决策器 : 策略注入
+ReAct循环引擎 o-- 工具箱
+工具箱 o-- 工具 : 1..4
+课件检索工具 --|> 工具
+习题生成工具 --|> 工具
+备考计划工具 --|> 工具
+笔记归档工具 --|> 工具
+课件解析服务 ..> 文本清洗器 : 使用
+
+note bottom of ReAct循环引擎
+  四条安全阀的实现位置：
+  · maxSteps → 轮次上限
+  · signature() → 重复调用打断
+  · executeTool 捕获异常 → 工具异常转观察
+  · abort() 必定返回
+end note
+
+note right of 工具箱
+  userId 在构造时绑定，
+  不作为工具参数暴露给模型
+end note
+@enduml
