@@ -1,0 +1,51 @@
+@startuml 03-时序图-基于课件复习
+title UC-01 基于课件复习 · 时序图（主用例）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+
+actor "学生" as S
+boundary "对话页面\n(Vue3)" as UI
+control "业务服务\n(SpringBoot)" as BE
+control "智能体服务\n(FastAPI)" as PY
+entity "工具集" as TOOL
+database "MySQL" as DB
+participant "大模型API" as LLM
+
+== 1. 发起对话 ==
+S -> UI : 输入"下周要考高数极限，帮我复习"
+UI -> BE : POST /api/chat/send\n{userId, coursewareId, question}
+BE -> BE : JWT 鉴权 + 用户数据隔离校验
+BE -> PY : POST /agent/chat\n{userId, sessionId, coursewareId, question}
+
+== 2. ReAct 循环 ==
+activate PY
+loop 最多 8 轮（安全阀）
+  PY -> PY : Thought 思考下一步
+  alt 需要课件原文
+    PY -> TOOL : 课件检索(关键词)
+    TOOL -> DB : 按 userId 限定范围查询
+    DB --> TOOL : 返回课件段落
+    TOOL --> PY : Observation 课件原文
+  else 生成练习
+    PY -> TOOL : 习题生成(原文)
+    TOOL -> LLM : 基于原文出题
+    LLM --> TOOL : 题目与答案
+    TOOL --> PY : Observation 练习题
+  else 含考试日期
+    PY -> TOOL : 备考计划(日期)
+    TOOL --> PY : Observation 分阶段计划
+  else 任务完成
+    PY -> TOOL : 笔记归档(标题, 内容)
+    TOOL -> DB : 写入笔记（绑定 userId）
+    DB --> TOOL : 笔记编号
+    TOOL --> PY : Observation 已归档
+  end
+end
+
+== 3. 返回结果 ==
+PY --> BE : {answer, trace, finished}
+deactivate PY
+BE --> UI : 统一返回体 {code, message, data}
+UI --> S : 渲染 Markdown + 可展开的思考轨迹
+@enduml

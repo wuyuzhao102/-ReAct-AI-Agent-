@@ -1,0 +1,86 @@
+@startuml 03-包图
+title 校园课程学习助手 · 包图（子系统与包结构）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+skinparam packageStyle frame
+
+package "frontend（Vue3 前端）" {
+  package "views（页面）" {
+    [LoginView]
+    [CoursewareView]
+    [ChatView]
+    [ArchiveView]
+  }
+  package "components（公共组件）" {
+    [MarkdownPanel]
+    [TracePanel]
+    [UploadDialog]
+  }
+  package "api（接口封装）" {
+    [authApi]
+    [coursewareApi]
+    [chatApi]
+    [archiveApi]
+  }
+  package "stores（状态）" {
+    [userStore]
+    [chatStore]
+  }
+}
+
+package "backend（Spring Boot 业务层）" {
+  package "com.coursemate.user" {
+    [UserController]
+    [UserService]
+    [UserMapper]
+  }
+  package "com.coursemate.courseware" {
+    [CoursewareController]
+    [ParseTrigger]
+    [FileStorageService]
+  }
+  package "com.coursemate.chat" {
+    [ChatController]
+    [AgentProxy]
+  }
+  package "com.coursemate.common" {
+    [统一返回体]
+    [JWT过滤器]
+    [异常处理]
+  }
+}
+
+package "agent（Python 智能体层）" {
+  package "app（FastAPI 入口）" {
+    [main]
+    [schemas]
+    [config]
+  }
+  package "react（循环引擎）" {
+    [ReActAgent]
+    [Reasoner<<interface>>]
+    [RuleBasedReasoner]
+  }
+  package "tools（四工具）" {
+    [ToolBox]
+    [课件检索]
+    [习题生成]
+    [备考计划]
+    [笔记归档]
+  }
+  package "parsers（解析）" {
+    [PDF提取器]
+    [文本清洗器]
+  }
+}
+
+views ..> api : 调用
+components ..> api
+api ..> com.coursemate.user : HTTP
+api ..> com.coursemate.courseware
+api ..> com.coursemate.chat
+ChatController ..> app : HTTP 转发
+ParseTrigger ..> parsers
+react ..> tools
+app ..> react
+@enduml

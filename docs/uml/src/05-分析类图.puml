@@ -1,0 +1,123 @@
+@startuml 05-分析类图
+title 校园课程学习助手 · 分析类图
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam classAttributeIconSize 0
+
+package "边界类（Vue3 前端）" {
+  class 登录页
+  class 课件页
+  class 对话页
+  class 档案页
+}
+
+package "控制类（SpringBoot 业务层）" {
+  class 用户控制器 {
+    +注册()
+    +登录()
+  }
+  class 课件控制器 {
+    +上传()
+    +列表()
+    +删除()
+  }
+  class 对话控制器 {
+    +发送消息()
+  }
+  class 鉴权服务 {
+    +签发JWT()
+    +校验JWT()
+  }
+}
+
+package "控制类（FastAPI 智能体层）" {
+  class ReAct循环 {
+    +运行(问题): 对话响应
+    -执行工具()
+    -触发安全阀()
+  }
+  class 决策器 {
+    +决定下一步(): 决策
+  }
+  class 规则决策器
+  class 工具箱 {
+    +按用户绑定()
+  }
+}
+
+package "工具（四个）" {
+  class 课件检索 {
+    +检索(关键词): 段落
+  }
+  class 习题生成 {
+    +生成(原文): 题目
+  }
+  class 备考计划 {
+    +生成(日期): 计划
+  }
+  class 笔记归档 {
+    +归档(标题,内容): 编号
+  }
+}
+
+package "实体类（MySQL）" {
+  class 用户 {
+    +id
+    +用户名
+    +密码摘要
+  }
+  class 课件 {
+    +id
+    +userId
+    +文件名
+    +解析状态
+  }
+  class 会话 {
+    +id
+    +userId
+    +coursewareId
+  }
+  class 消息 {
+    +id
+    +sessionId
+    +内容
+    +轨迹
+  }
+  class 笔记 {
+    +id
+    +userId
+    +标题
+    +内容
+  }
+  class 错题 {
+    +id
+    +userId
+    +题目
+    +解析
+  }
+}
+
+对话页 --> 对话控制器
+课件页 --> 课件控制器
+登录页 --> 用户控制器
+档案页 --> 对话控制器 : 查询历史
+
+对话控制器 --> ReAct循环 : HTTP 调用
+课件控制器 --> 课件检索 : 建立索引
+用户控制器 --> 鉴权服务
+
+ReAct循环 --> 决策器
+规则决策器 --|> 决策器
+ReAct循环 --> 工具箱
+工具箱 --> 课件检索
+工具箱 --> 习题生成
+工具箱 --> 备考计划
+工具箱 --> 笔记归档
+
+用户 "1" -- "*" 课件 : 拥有
+用户 "1" -- "*" 会话
+用户 "1" -- "*" 笔记
+用户 "1" -- "*" 错题
+课件 "1" -- "*" 会话 : 基于
+会话 "1" -- "*" 消息
+@enduml

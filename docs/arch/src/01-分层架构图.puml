@@ -1,0 +1,77 @@
+@startuml 01-分层架构图
+title 校园课程学习助手 · 逻辑架构（分层视图）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<presentation>> #E8F4FD
+  BackgroundColor<<business>> #FFF3E0
+  BackgroundColor<<agent>> #E8F5E9
+  BackgroundColor<<data>> #FCE4EC
+  BorderColor #37474F
+}
+
+package "表现层（Presentation）" <<presentation>> {
+  [登录页] as P1
+  [课件页] as P2
+  [对话页] as P3
+  [档案页] as P4
+  [Markdown渲染器] as P5
+  [轨迹展示器] as P6
+}
+
+package "业务层（Business · Spring Boot）" <<business>> {
+  [用户控制器] as B1
+  [课件控制器] as B2
+  [对话控制器] as B3
+  [档案控制器] as B4
+  [鉴权服务] as B5
+  [文件管理服务] as B6
+}
+
+package "智能体层（Agent · FastAPI）" <<agent>> {
+  [ReAct循环引擎] as A1
+  [决策器接口] as A2
+  [规则决策器] as A3
+  [大模型决策器] as A4
+  [工具箱] as A5
+  [四工具\n课件检索/习题生成/备考计划/笔记归档] as A6
+  [课件解析服务] as A7
+  [文本清洗器] as A8
+}
+
+package "数据层（Data）" <<data>> {
+  [MySQL\n用户/课件/会话/笔记] as D1
+  [文件存储\nPDF/Word原件] as D2
+  [大模型API\nDeepSeek/通义千问] as D3
+}
+
+P3 --> B3 : REST /api
+P2 --> B2
+P1 --> B1
+P4 --> B4
+B3 --> A1 : HTTP /agent
+B2 --> A7 : 触发解析
+B1 --> B5
+B2 --> B6
+B6 --> D2
+B1 --> D1
+B2 --> D1
+B3 --> D1
+B4 --> D1
+A1 --> A2
+A3 ..|> A2
+A4 ..|> A2
+A1 --> A5
+A5 --> A6
+A6 --> D1 : 只读检索
+A6 --> D3
+A7 --> A8
+A8 --> D1 : 写索引
+
+note right of A1
+  核心构件：ReAct 循环引擎
+  依赖倒置于「决策器接口」，
+  规则/大模型两种实现可插拔
+end note
+@enduml

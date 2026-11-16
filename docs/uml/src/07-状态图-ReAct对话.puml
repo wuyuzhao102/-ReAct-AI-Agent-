@@ -1,0 +1,30 @@
+@startuml 07-状态图-ReAct对话
+title ReAct 对话生命周期状态图
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+[*] --> 接收请求 : POST /agent/chat
+
+接收请求 --> 思考中 : 进入循环（第1轮）
+思考中 --> 调用工具 : 决策器选择工具
+调用工具 --> 观察结果 : 工具返回 Observation
+观察结果 --> 思考中 : 进入下一轮（步数+1）
+
+观察结果 --> 已完成 : 决策器给出最终答案
+思考中 --> 已完成 : 任务收敛
+
+观察结果 --> 中止 : 触发安全阀
+思考中 --> 中止 : 达到最大轮次(8)
+
+中止 --> 已返回 : 汇总已得内容\nfinished=false
+已完成 --> 已返回 : 输出 Markdown+轨迹\nfinished=true
+已返回 --> [*]
+
+note right of 中止
+  四类安全阀：
+  ① 轮次上限 8 轮
+  ② 同工具同参数重复调用
+  ③ 工具异常转为观察
+  ④ 任何分支都必须返回
+end note
+@enduml
